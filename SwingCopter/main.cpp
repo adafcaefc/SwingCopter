@@ -6,19 +6,25 @@ static inline void update_swing_copter(
 	gd::PlayerObject* __this, 
 	const float delta)
 {
-	const auto _go_size = __this->m_fScale;
-	const auto _direction = __this->m_isUpsideDown ? -1.f : 1.f;
-	const auto _size = (_go_size != 1.f)  ? .85f : 1.f;
-	auto _gravity = __this->m_gravity;
+	const auto _direction = __this->m_isUpsideDown 
+		? -1.f 
+		:  1.f;
 
-	const auto _y_accel = __this->m_yAccel;
-	if (std::fabs(_y_accel) > 6.) _gravity += 1.;
+	const auto _size = (__this->m_fScale != 1.f)  
+		? .85f 
+		: 1.f;
 
-	const auto n_y_accel = _y_accel + (_gravity * delta * _direction * -.5) / _size;
-	if (std::fabs(_y_accel) <= 6. ||
-		std::fabs(n_y_accel) <= std::fabs(_y_accel))
+	const auto _gravity = (std::fabs(__this->m_yAccel) > 6.) 
+		? __this->m_gravity + 1. 
+		: __this->m_gravity;
+
+	const auto modifier = -.5 * _gravity * delta * _direction / _size;
+	const auto y_acceleration = __this->m_yAccel + modifier;
+	
+	if (std::fabs(__this->m_yAccel) <= 6. ||
+		std::fabs(y_acceleration) <= std::fabs(__this->m_yAccel))
 	{
-		__this->m_yAccel = n_y_accel;
+		__this->m_yAccel = y_acceleration;
 	}
 
 	if (__this->m_isHolding && __this->m_hasJustHeld)
